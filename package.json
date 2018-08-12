@@ -1,0 +1,33 @@
+{
+  "name": "purchase-server",
+  "version": "1.0.0",
+  "description": "sglearn: purchase backend services",
+  "main": "index.js",
+  "scripts": {
+    "local": "node example/server.local.js",
+    "example": "npm run local"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/duongtdn/purchase-server.git"
+  },
+  "author": "duongtdn",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/duongtdn/purchase-server/issues"
+  },
+  "homepage": "https://github.com/duongtdn/purchase-server#readme",
+  "devDependencies": {
+    "database-test-helper": "^1.0.0",
+    "invoicedb-test-helper": "^1.0.0",
+    "cors": "^2.8.4",
+    "dotenv": "^5.0.1",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "mocha": "^5.0.1"
+  },
+  "dependencies": {
+    "express-api-binder": "^1.1.0",
+    "@stormgle/jtoken-util": "^1.0.0"
+  }
+}
