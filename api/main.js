@@ -4,6 +4,7 @@ const api = require('express-api-binder')
 
 const funcs = [
   'get/invoice/:number',
+  'post/purchase'
 ]
 
 funcs.forEach(func => {
