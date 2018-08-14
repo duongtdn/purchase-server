@@ -29,7 +29,8 @@
     "mocha": "^5.0.1"
   },
   "dependencies": {
+    "@stormgle/jtoken-util": "^1.0.0",
     "express-api-binder": "^1.1.0",
-    "@stormgle/jtoken-util": "^1.0.0"
+    "jsonwebtoken": "^8.3.0"
   }
 }
