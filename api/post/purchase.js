@@ -31,17 +31,20 @@ function getCart(db) {
   }
 }
 
-function getUserInfo() {
+function prepareData() {
   return function(req, res, next) {
     const uid = req.user.uid;
     // get user info from authentication service using deligated admin token
-    _authGetUser(uid, token)
-    next();
+    _authGetUser(uid, token).then( user => {
+      req.user = user;
+      next();
+    }).catch( error => res.status(400).send() )
   }
 }
 
 function final() {
   return function(req, res) {
+    console.log(req.user)
     res.status(200).json({status: 'success'})
   }
 }
@@ -56,26 +59,28 @@ function _authGetUser(uid, token) {
       Authorization: `Bearer ${token}`
     }
   };
+
+  return new Promise((resolve, reject) => {
+
+    const req = http.request(options, (res) => {
+      let user = null;
+      res.setEncoding('utf8');
+      res.on('data', (chunk) => {
+        user = chunk;
+      });
+      res.on('end', () => {
+        resolve(user);
+      });
+    })
+
+    req.on('error', (e) => {
+      reject(e);
+    });
   
-  const req = http.request(options, (res) => {
-    console.log(`STATUS: ${res.statusCode}`);
-    console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
-    res.setEncoding('utf8');
-    res.on('data', (chunk) => {
-      console.log(`BODY: ${chunk}`);
-    });
-    res.on('end', () => {
-      console.log('No more data in response.');
-    });
+    req.end();
+
   })
-
-  req.on('error', (e) => {
-    console.error(`problem with request: ${e.message}`);
-  });
-
-  // req.write('');
-  req.end();
 
 }
 
-module.exports = [authen, getCart, getUserInfo, final]
+module.exports = [authen, getCart, prepareData, final]
