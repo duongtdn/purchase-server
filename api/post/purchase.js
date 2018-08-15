@@ -98,7 +98,7 @@ function createInvoice(db) {
 
 function final() {
   return function(req, res) {
-    res.status(200).json({invoice: req.invoice})
+    res.status(200).json({data: req.invoice})
   }
 }
 
