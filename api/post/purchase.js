@@ -78,6 +78,16 @@ function checkCart() {
   } 
 }
 
+function createInvoice() {
+  return function(req, res, next) {
+    const invoice = {
+      ...req.cart,
+      totalPrice: _sumUpPrice(req.cart.items),
+    }
+    next()
+  }
+}
+
 function final() {
   return function(req, res) {
     res.status(200).json({status: 'success'})
@@ -162,5 +172,17 @@ function _comparePrice(priceA, priceB) {
   return (priceA.origin === priceB.origin) && (priceA.offer === priceB.offer)
 }
 
+function _sumUpPrice(items) {
+  let totalPrice = 0;
+  items.forEach( item => {
+    if (item.price.offer) {
+      totalPrice += item.price.offer;
+    } else {
+      totalPrice += item.price.origin;
+    }
+  })
+  return totalPrice;
+}
 
-module.exports = [authen, getCart, prepareData, checkCart, final]
+
+module.exports = [authen, getCart, prepareData, checkCart, createInvoice, final]
