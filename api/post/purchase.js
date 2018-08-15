@@ -8,10 +8,7 @@ const http = require('http')
 const serverSecret = process.env.DELIGATE_KEY_ADMIN_SERVER;
 const token = jwt.sign(
   {uid: 'sg-purchase-server'},
-  serverSecret,
-  {
-    expiresIn: "14 days"
-  }
+  serverSecret
 );
 
 const secret = process.env.AUTH_KEY_SGLEARN;
