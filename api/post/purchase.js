@@ -78,19 +78,27 @@ function checkCart() {
   } 
 }
 
-function createInvoice() {
+function createInvoice(db) {
   return function(req, res, next) {
     const invoice = {
       ...req.cart,
       totalPrice: _sumUpPrice(req.cart.items),
     }
-    next()
+    db.invoice.createInvoice(invoice, (err, data) => {
+      if (err) {
+        res.status(400).send()
+      } else {
+        req.invoice = data;
+        next()
+      }
+    })
+
   }
 }
 
 function final() {
   return function(req, res) {
-    res.status(200).json({status: 'success'})
+    res.status(200).json({invoice: req.invoice})
   }
 }
 
