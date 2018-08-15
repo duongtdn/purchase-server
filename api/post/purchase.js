@@ -22,7 +22,7 @@ function authen() {
 function getCart(db) {
   return function(req, res, next) {
     const cart = req.body.cart;
-    if (cart) {
+    if (cart && cart.items && cart.billTo) {
       req.cart = cart;
       next();
     } else {
@@ -31,20 +31,33 @@ function getCart(db) {
   }
 }
 
-function prepareData() {
+function prepareData(db) {
   return function(req, res, next) {
+    const _promises = [];
     const uid = req.user.uid;
-    // get user info from authentication service using deligated admin token
-    _authGetUser(uid, token).then( user => {
-      req.user = user;
+
+    /* get user information to retrieve promotion offer to user */
+    _promises.push(_authGetUser(uid, token));
+
+    /* get items information to check price and offer */
+    req.cart.items.forEach(item => {
+      if (item.type === 'course') {
+        _promises.push(_getCourse(db, item.code))
+      }
+    })
+
+    Promise.all(_promises).then( data => {
+      req.user = data[0];
+      const items = data.slice(1);
+      req.items = items;
       next();
-    }).catch( error => res.status(400).send() )
+    }).catch(err => res.status(400).send())
+
   }
 }
 
 function final() {
   return function(req, res) {
-    console.log(req.user)
     res.status(200).json({status: 'success'})
   }
 }
@@ -81,6 +94,18 @@ function _authGetUser(uid, token) {
 
   })
 
+}
+
+function _getCourse(db, courseId) {
+  return new Promise((resolve, reject) => {
+    db.course.getCourse({ courseId }, (err, data) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(data)
+      }
+    })
+  })
 }
 
 module.exports = [authen, getCart, prepareData, final]
