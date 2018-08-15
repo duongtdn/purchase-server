@@ -47,13 +47,38 @@ function prepareData(db) {
     })
 
     Promise.all(_promises).then( data => {
-      req.user = data[0];
+
+      const _user = JSON.parse(data[0]);
+      if (_user && _user.user) {
+        req.user = _user.user
+      }
+      
       const items = data.slice(1);
       req.items = items;
+
       next();
+
     }).catch(err => res.status(400).send())
 
   }
+}
+
+function checkCart() {
+  return function(req, res, next) {
+    const user = req.user;
+    const cartItems = req.cart.items;
+    const _check = cartItems.every(item => {
+      const _item = _getItemDetail(item, req.items);
+      _item.type = item.type; // for _calculateOfferPrice, need to know type to match with user special offer
+      const _price = _calculateOfferPrice(_item, user)
+      return _comparePrice(item.price, _price)
+    })
+    if (_check) {
+      next()
+    } else {
+      err => res.status(400).send()
+    }
+  } 
 }
 
 function final() {
@@ -108,4 +133,37 @@ function _getCourse(db, courseId) {
   })
 }
 
-module.exports = [authen, getCart, prepareData, final]
+function _getItemDetail(item, items) {
+  const _filtered = items.filter( _item => {
+    return (_item[`${item.type}Id`] === item.code)
+  })  
+  return (_filtered.length > 0)? _filtered[0] : null;
+}
+
+function _calculateOfferPrice(item, user) {
+  const price = {
+    origin: item.price.value
+  }
+
+  let deduction = 0;
+  if (item.promote.discount) {
+    deduction += item.promote.discount;
+  }
+  if (user && 
+      user.promote && 
+      user.promote[item.type]  && user.promote[item.type][item[`${item.type}Id`]] ) {
+    deduction += user.promote[item.type][item[`${item.type}Id`]];
+  }
+
+  const offer = price.origin - deduction;
+  price.offer = (offer > 0) ? offer : 0;
+  price.discount = Math.floor((deduction / price.origin) * 100)
+  return price;
+}
+
+function _comparePrice(priceA, priceB) {
+  return (priceA.origin === priceB.origin) && (priceA.offer === priceB.offer)
+}
+
+
+module.exports = [authen, getCart, prepareData, checkCart, final]
