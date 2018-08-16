@@ -96,6 +96,27 @@ function createInvoice(db) {
   }
 }
 
+function processItem(db) {
+  return function(req, res, next) {
+    const items = req.cart.items;
+    const user = req.user;
+    const invoice = req.invoice;
+    const _promises = [];
+
+    items.forEach(item => {
+      if (item.type === 'course') {
+        _promises.push(_enroll(item, invoice.number, user, db.enroll));
+        return
+      }
+    })
+
+    Promise.all(_promises)
+      .then( (values) => next() )
+      .catch( (err) => res.status(500).send() )
+
+  }
+}
+
 function final() {
   return function(req, res) {
     res.status(200).json({data: req.invoice})
@@ -192,5 +213,23 @@ function _sumUpPrice(items) {
   return totalPrice;
 }
 
+function _enroll(item, invoiceNumber, user, db) {
+  return new Promise((resolve, reject) => {
+    const enroll = {
+      uid: user.uid,
+      courseId: item.code,
+      invoice: invoiceNumber,
+      detail: {status: 'billing'},      
+    }
 
-module.exports = [authen, getCart, prepareData, checkCart, createInvoice, final]
+    db.createEnroll(enroll, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(enroll)
+      }
+    })
+  })
+}
+
+module.exports = [authen, getCart, prepareData, checkCart, createInvoice, processItem, final]
