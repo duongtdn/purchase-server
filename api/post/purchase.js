@@ -105,7 +105,7 @@ function processItem(db) {
 
     items.forEach(item => {
       if (item.type === 'course') {
-        _promises.push(_enroll(item, invoice.number, user, db.enroll));
+        _promises.push(_enroll(item, invoice, user, db.enroll));
         return
       }
     })
@@ -213,13 +213,14 @@ function _sumUpPrice(items) {
   return totalPrice;
 }
 
-function _enroll(item, invoiceNumber, user, db) {
+function _enroll(item, invoice, user, db) {
   return new Promise((resolve, reject) => {
     const enroll = {
       uid: user.uid,
       courseId: item.code,
-      invoice: invoiceNumber,
-      detail: {status: 'billing'},      
+      invoice: invoice.number,
+      status: invoice.status,   
+      enrollAt: invoice.issueAt   
     }
 
     db.createEnroll(enroll, (err) => {
