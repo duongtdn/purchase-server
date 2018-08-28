@@ -125,8 +125,8 @@ function final() {
 
 function _authGetUser(uid, token) {
   const options = {
-    host: 'localhost',
-    port: 3100,
+    host: process.env.API_AUTH_HOST || 'localhost',
+    port:  process.env.API_AUTH_PORT || 3100,
     method: 'GET',
     path:`/users/uid/${uid}`,
     headers: {
