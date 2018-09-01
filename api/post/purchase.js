@@ -82,11 +82,11 @@ function createInvoice(db) {
   return function(req, res, next) {
     const invoice = {
       ...req.cart,
-      totalPrice: _sumUpPrice(req.cart.items),
+      subTotal: _sumUpPrice(req.cart.items),
     }
     db.invoice.createInvoice(invoice, (err, data) => {
       if (err) {
-        res.status(400).send()
+        res.status(500).send()
       } else {
         req.invoice = data;
         next()
@@ -202,15 +202,15 @@ function _comparePrice(priceA, priceB) {
 }
 
 function _sumUpPrice(items) {
-  let totalPrice = 0;
+  let subTotal = 0;
   items.forEach( item => {
     if (item.price.offer) {
-      totalPrice += (item.price.offer * item.quantity);
+      subTotal += (item.price.offer * item.quantity);
     } else {
-      totalPrice += (item.price.origin * item.quantity);
+      subTotal += (item.price.origin * item.quantity);
     }
   })
-  return totalPrice;
+  return subTotal;
 }
 
 function _enroll(item, invoice, user, db) {
