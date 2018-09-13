@@ -33,6 +33,12 @@ function prepareData(db) {
     const _promises = [];
     const uid = req.user.uid;
 
+    // store userid along with invoice
+    if (!req.cart.billTo) {
+      req.cart.billTo = {}
+    }
+    req.cart.billTo.uid = uid;
+
     /* get user information to retrieve promotion offer to user */
     _promises.push(_authGetUser(uid, token));
 
