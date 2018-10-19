@@ -2,7 +2,7 @@
 
 const jwt = require('jsonwebtoken')
 const { verifyToken } = require('@stormgle/jtoken-util')
-const http = require('http')
+const https = require('https')
 
 /* sign token as delegated admin to get user info later*/
 const serverSecret = process.env.DELIGATE_KEY_ADMIN_SERVER;
@@ -131,8 +131,8 @@ function final() {
 
 function _authGetUser(uid, token) {
   const options = {
-    host: process.env.API_AUTH_HOST || 'localhost',
-    port:  process.env.API_AUTH_PORT || 3100,
+    hostname: process.env.AUTH_HOST || 'localhost',
+    port:  process.env.AUTH_PORT || 3100,
     method: 'GET',
     path:`/users/uid/${uid}`,
     headers: {
@@ -142,7 +142,7 @@ function _authGetUser(uid, token) {
 
   return new Promise((resolve, reject) => {
 
-    const req = http.request(options, (res) => {
+    const req = https.request(options, (res) => {
       let user = null;
       res.setEncoding('utf8');
       res.on('data', (chunk) => {

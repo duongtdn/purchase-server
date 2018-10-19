@@ -1,5 +1,5 @@
 {
-  "name": "purchase-server",
+  "name": "@sglearn/purchase-server",
   "version": "1.0.0",
   "description": "sglearn: purchase backend services",
   "main": "index.js",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/duongtdn/purchase-server.git"
+    "url": "git+https://github.com/sglearn/purchase-server.git"
   },
   "author": "duongtdn",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/duongtdn/purchase-server/issues"
+    "url": "https://github.com/sglearn/purchase-server/issues"
   },
-  "homepage": "https://github.com/duongtdn/purchase-server#readme",
+  "homepage": "https://github.com/sglearn/purchase-server#readme",
   "devDependencies": {
     "database-abstractor": "^1.0.0",
     "database-test-helper": "^1.0.0",
