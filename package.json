@@ -1,8 +1,8 @@
 {
   "name": "@sglearn/purchase-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "sglearn: purchase backend services",
-  "main": "index.js",
+  "main": "api/main.js",
   "scripts": {
     "local": "node example/server.local.js",
     "example": "npm run local"
