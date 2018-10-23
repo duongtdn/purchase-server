@@ -1,6 +1,6 @@
 {
   "name": "@sglearn/purchase-server",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "sglearn: purchase backend services",
   "main": "api/main.js",
   "scripts": {

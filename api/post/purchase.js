@@ -124,15 +124,17 @@ function processItem(db) {
 }
 
 function sendEmail(db, helper) {
-  if (helper && helper.sendEmail) {
-    const invoice = req.invoice;
-    const recipient = invoice.billTo.email;
-    const customer = req.user.profile.firstName || 'Customer'
-    helper.sendEmail({recipient, customer, invoice}, err => {
+  return function(req, res, next) {
+    if (helper && helper.sendEmail) {
+      const invoice = req.invoice;
+      const recipient = invoice.billTo.email;
+      const customer = req.user.profile.firstName || 'Customer'
+      helper.sendEmail({recipient, customer, invoice}, err => {
+        next()
+      })
+    } else {
       next()
-    })
-  } else {
-    next()
+    }
   }
 }
 
