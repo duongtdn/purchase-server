@@ -123,6 +123,19 @@ function processItem(db) {
   }
 }
 
+function sendEmail(db, helper) {
+  if (helper && helper.sendEmail) {
+    const invoice = req.invoice;
+    const recipient = invoice.billTo.email;
+    const customer = req.user.profile.firstName || 'Customer'
+    helper.sendEmail({recipient, customer, invoice}, err => {
+      next()
+    })
+  } else {
+    next()
+  }
+}
+
 function final() {
   return function(req, res) {
     res.status(200).json({data: req.invoice})
@@ -239,4 +252,4 @@ function _enroll(item, invoice, user, db) {
   })
 }
 
-module.exports = [authen, getCart, prepareData, checkCart, createInvoice, processItem, final]
+module.exports = [authen, getCart, prepareData, checkCart, createInvoice, processItem, sendEmail, final]
