@@ -5,7 +5,9 @@ const api = require('express-api-binder')
 api.__helper = {}
 
 api.helper = function(options) {
-  api.__helper = options
+  for (let prop in options) {
+    api.__helper[prop] = options[prop]
+  }
 }
 
 const funcs = [
