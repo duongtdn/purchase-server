@@ -115,7 +115,7 @@ function checkEnroll(db) {
         const items = req.cart.items;
         items.forEach(item => {
           if (item.type === 'course' && _enrolled.some(e => e.courseId === item.code)) {
-            res.status(304).json({err: `Course ${item.code} has been enrolled`})
+            res.status(403).json({err: `Course ${item.code} has been enrolled`})
             return
           }
         }) 
