@@ -103,7 +103,7 @@ function checkCart() {
   currently, bundle purchasing is not implemented yet
   therefore, just check whether course is enrolled. If yes, return 304
 */
-function checkEnroll() {
+function checkEnroll(db) {
   return function(req, res, next) {
     const uid = req.user.uid;
     db.enroll.getEnrollList({uid}, (err, data) => {
