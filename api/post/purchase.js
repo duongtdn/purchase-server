@@ -84,6 +84,47 @@ function checkCart() {
   } 
 }
 
+/*
+  -----------------------------------
+  work halt. to be implemented later
+  -----------------------------------
+  currently, it does not check where user has enrolled a course yet.
+  If user has enrolled a course, it will override the enroll record with new invoice and status (billing).
+  
+  Expected behaviors:
+  If user purchase a bundle of courses, some course has been purchased and paid, then the new invoice must exclude
+  these courses.
+  If those course is not paid yet, then override enroll record with new invoice
+  There must be an escape way to cancel old invoice, even by user or admin. 
+  If a enroll is overrided, then the invoice associated with that enroll must be changed status to outdated.
+  When user enroll, notify user that those invoice is outdated.
+
+  Current Workaround:
+  currently, bundle purchasing is not implemented yet
+  therefore, just check whether course is enrolled. If yes, return 304
+*/
+function checkEnroll() {
+  return function(req, res, next) {
+    const uid = req.user.uid;
+    db.enroll.getEnrollList({uid}, (err, data) => {
+      if (err) {
+        res.status(500).json({err:'Access Database failed! Cannot check Enroll List'})
+      } else {
+        const _enrolled = data;
+        console.log(_enroll)
+        const items = req.cart.items;
+        items.forEach(item => {
+          if (item.type === 'course' && _enrolled.some(e => e.courseId === item.code)) {
+            res.status(304).json({err: `Course ${item.code} has been enrolled`})
+            return
+          }
+        }) 
+        next()
+      }
+    }) 
+  }
+}
+
 function createInvoice(db) {
   return function(req, res, next) {
     const invoice = {
@@ -92,7 +133,7 @@ function createInvoice(db) {
     }
     db.invoice.createInvoice(invoice, (err, data) => {
       if (err) {
-        res.status(500).send()
+        res.status(500).json({err:'Access Database failed! Cannot create Invoice'})
       } else {
         req.invoice = data;
         next()
@@ -254,4 +295,4 @@ function _enroll(item, invoice, user, db) {
   })
 }
 
-module.exports = [authen, getCart, prepareData, checkCart, createInvoice, processItem, sendEmail, final]
+module.exports = [authen, getCart, prepareData, checkCart, checkEnroll, createInvoice, processItem, sendEmail, final]
