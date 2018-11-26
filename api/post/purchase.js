@@ -152,7 +152,7 @@ function processItem(db) {
 
     items.forEach(item => {
       if (item.type === 'course') {
-        _promises.push(_enroll(item, invoice, user, db.enroll));
+        _promises.push(..._enroll(item, invoice, user, db.enroll));
         return
       }
     })
@@ -276,7 +276,46 @@ function _sumUpPrice(items) {
 }
 
 function _enroll(item, invoice, user, db) {
-  return new Promise((resolve, reject) => {
+
+  return [addTestResultsEntryToUser(), addRecordToEnrollTable()]
+
+  function addTestResultsEntryToUser() {
+    const uid = user.uid
+    const options = {
+      hostname: process.env.AUTH_HOST || 'localhost',
+      port:  process.env.AUTH_PORT || 3100,
+      method: 'POST',
+      path:`/users/${uid}/test_results`,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      }
+    };
+    
+    const data = { testResults: {} }
+    data.testResults[item.code] = {}
+
+    return new Promise((resolve, reject) => {
+      const req = https.request(options, (res) => {
+        let user = null;
+        res.setEncoding('utf8');
+        res.on('data', (chunk) => {
+          user = chunk;
+        });
+        res.on('end', () => {
+          resolve(user);
+        });
+      })
+  
+      req.on('error', (e) => {
+        reject(e);
+      });
+  
+      req.end(JSON.stringify(data));
+    })
+  }
+
+  function addRecordToEnrollTable() {
     const enroll = {
       uid: user.uid,
       courseId: item.code,
@@ -284,15 +323,17 @@ function _enroll(item, invoice, user, db) {
       status: invoice.status,   
       enrollAt: invoice.issueAt   
     }
-
-    db.createEnroll(enroll, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(enroll)
-      }
+    return new Promise((resolve, reject) => {
+      db.createEnroll(enroll, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(enroll)
+        }
+      })
     })
-  })
+  }
+  
 }
 
 module.exports = [authen, getCart, prepareData, checkCart, checkEnroll, createInvoice, processItem, sendEmail, final]
